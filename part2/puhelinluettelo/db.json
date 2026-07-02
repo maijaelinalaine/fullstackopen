@@ -1,0 +1,25 @@
+{
+  "persons": [
+    {
+      "name": "Ada Lovelace",
+      "number": "39-44-5323522",
+      "id": "2"
+    },
+    {
+      "name": "Mary Poppendieck",
+      "number": "39-23-6423122",
+      "id": "4"
+    },
+    {
+      "name": "Maija Laine",
+      "number": "044-2382314",
+      "id": "SYcuAZdDhao"
+    },
+    {
+      "name": "Juha Tauriainen",
+      "number": "045-2938441",
+      "id": "F1tDV4YkpAs"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
