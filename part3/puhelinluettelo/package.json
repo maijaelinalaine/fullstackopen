@@ -1,0 +1,12 @@
+{
+  "name": "puhelinluettelo",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^5.2.1",
+    "morgan": "^1.11.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "build:ui": "rm -rf dist && cd ../../part2/puhelinluettelo && npm run build && cp -r dist ../../part3/puhelinluettelo"
+  }
+}
