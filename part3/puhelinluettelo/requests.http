@@ -1,14 +1,12 @@
 ### Get all persons
-GET http://localhost:3001/api/persons
-
+GET https://phone-book-7wog.onrender.com/
 ### Get one person
-GET http://localhost:3001/api/persons/2
-
+GET https://phone-book-7wog.onrender.com/
 ### Delete one person
-DELETE http://localhost:3001/api/persons/2
+DELETE https://phone-book-7wog.onrender.com/
 
 ### Add a person
-POST http://localhost:3001/api/persons
+POST https://phone-book-7wog.onrender.com/
 Content-Type: application/json
 
 {
