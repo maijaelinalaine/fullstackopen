@@ -3,11 +3,17 @@
   "version": "1.0.0",
   "dependencies": {
     "express": "^5.2.1",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.7.4",
     "morgan": "^1.11.0"
   },
   "scripts": {
     "start": "node index.js",
     "build": "npm install --prefix ../../part2/puhelinluettelo && npm run build --prefix ../../part2/puhelinluettelo && rm -rf dist && cp -r ../../part2/puhelinluettelo/dist .",
     "build:ui": "npm run build"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "eslint": "^10.7.0"
   }
 }

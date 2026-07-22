@@ -1,57 +1,55 @@
 const express = require("express");
 const path = require("path");
+const mongoose = require("mongoose");
+const Person = require("./models/person");
+const unknownEndpoint = require("./middleware/unknownEndpoint");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "dist")));
 
-let persons = [
-  { id: 1, name: "Arto Hellas", number: "040-123456" },
-  { id: 2, name: "Ada Lovelace", number: "39-44-5323523" },
-  { id: 3, name: "Dan Abramov", number: "12-43-234345" },
-  { id: 4, name: "Mary Poppendieck", number: "39-23-6423122" },
-];
+const uri = process.env.MONGODB_URI;
 
-const generateId = () => {
-  let id;
+if (!uri) {
+  throw new Error("MONGODB_URI is not set");
+}
 
-  do {
-    id = Math.floor(Math.random() * 1000000);
-  } while (persons.some((person) => person.id === id));
+mongoose.set("strictQuery", false);
+mongoose
+  .connect(uri)
+  .then(() => {
+    console.log("connected to MongoDB");
+  })
+  .catch((error) => {
+    console.error("error connecting to MongoDB:", error.message);
+  });
 
-  return id;
-};
-
-app.get("/api/persons", (request, response) => {
+app.get("/api/persons", async (request, response) => {
+  const persons = await Person.find({});
   response.json(persons);
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", async (request, response, next) => {
   const { name, number } = request.body;
 
   if (!name || !number) {
-    return response.status(400).json({ error: "name or number missing" });
+    const error = new Error("name or number missing");
+    error.status = 400;
+    return next(error);
   }
 
-  const nameExists = persons.some((person) => person.name === name);
-
-  if (nameExists) {
-    return response.status(400).json({ error: "name must be unique" });
-  }
-
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name,
     number,
-  };
+  });
 
-  persons = persons.concat(person);
-  response.status(201).json(person);
+  const savedPerson = await person.save();
+  response.status(201).json(savedPerson);
 });
 
-app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((person) => person.id === id);
+app.get("/api/persons/:id", async (request, response) => {
+  const person = await Person.findById(request.params.id);
 
   if (!person) {
     return response.status(404).json({ error: "person not found" });
@@ -60,29 +58,31 @@ app.get("/api/persons/:id", (request, response) => {
   response.json(person);
 });
 
-app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const personExists = persons.some((person) => person.id === id);
+app.delete("/api/persons/:id", async (request, response) => {
+  const person = await Person.findByIdAndDelete(request.params.id);
 
-  if (!personExists) {
+  if (!person) {
     return response.status(404).json({ error: "person not found" });
   }
 
-  persons = persons.filter((person) => person.id !== id);
   response.status(204).end();
 });
 
-app.get("/info", (request, response) => {
+app.get("/info", async (request, response) => {
+  const personCount = await Person.countDocuments();
   const now = new Date();
   const date = now.toLocaleDateString("en-GB");
   const time = now.toLocaleTimeString("en-GB");
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   response.send(`
-    <p>Phonebook has info for ${persons.length} people</p>
+    <p>Phonebook has info for ${personCount} people</p>
     <p>${date} ${time} ${timeZone}</p>
   `);
 });
+
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 
